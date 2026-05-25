@@ -17,24 +17,20 @@ export default function LoggedInHome({ profile, onScan }) {
   const progressPercent = Math.round((codesFound / TOTAL_CODES) * 100);
 
   return (
-    <div className="page-container max-w-[480px] pt-12 pb-12">
-      <div className="mb-8">
+    <div className="page-container max-w-[480px]" style={{ paddingTop: 'clamp(2rem, 8vw, 3rem)', paddingBottom: 'clamp(2rem, 8vw, 3rem)' }}>
+      <div className="mb-7">
         <p className="mono-label text-fired-clay opacity-100 mb-3 block">IAS 3.0 · The Hunt</p>
-        <h1 style={{ fontSize: '2.2rem', lineHeight: 1.1 }}>{profile.name}.</h1>
+        <h1 className="mb-0">{profile.name}.</h1>
       </div>
 
       <div className="grid grid-cols-2 gap-3 mb-4">
-        <div className="card py-4 px-4">
+        <div className="card" style={{ padding: 'clamp(0.875rem, 4vw, 1.25rem)' }}>
           <p className="mono-label mb-2">Total Points</p>
-          <p className="font-display font-bold text-obsidian" style={{ fontSize: '2rem', lineHeight: 1 }}>
-            {profile.total_points}
-          </p>
+          <p className="stat-number">{profile.total_points}</p>
         </div>
-        <div className="card py-4 px-4">
+        <div className="card" style={{ padding: 'clamp(0.875rem, 4vw, 1.25rem)' }}>
           <p className="mono-label mb-2">Your Rank</p>
-          <p className="font-display font-bold text-obsidian" style={{ fontSize: '2rem', lineHeight: 1 }}>
-            #{profile.rank}
-          </p>
+          <p className="stat-number">#{profile.rank}</p>
         </div>
       </div>
 
