@@ -25,10 +25,43 @@ export async function POST(request) {
       return NextResponse.json({ error: 'validation', message: 'Invalid level' }, { status: 400 });
 
     const existing = await Participant.findOne({ phone });
+
     if (existing) {
-      if (existing.disqualified && codeSlug)
+      if (existing.disqualified)
         return NextResponse.json({ error: 'disqualified', message: 'This account has been disqualified' }, { status: 403 });
-      return NextResponse.json({ error: 'phone_exists', message: 'This phone number is already registered' }, { status: 409 });
+
+      // Returning user — silent login
+      if (!codeSlug) {
+        return NextResponse.json({ registered: true, name: existing.name, alreadyExisted: true });
+      }
+
+      // Returning user with a code to scan — skip creation, go straight to scan logic
+      const code = await CodeConfig.findOne({ slug: codeSlug });
+      if (!code)
+        return NextResponse.json({ error: 'validation', message: 'Invalid code' }, { status: 400 });
+      if (!code.active)
+        return NextResponse.json({ error: 'code_inactive', message: 'This code is not yet active' }, { status: 403 });
+
+      if (existing.codes_scanned.includes(codeSlug))
+        return NextResponse.json({ error: 'already_scanned', message: 'You have already scanned this code' }, { status: 409 });
+
+      let distanceMetres = null;
+      if (code.lat != null && code.lng != null) {
+        if (lat == null || lng == null)
+          return NextResponse.json({ error: 'gps_required', message: 'Location permission is required to scan this code' }, { status: 403 });
+        distanceMetres = Math.round(haversineDistance(lat, lng, code.lat, code.lng));
+        if (distanceMetres > MAX_DISTANCE_METRES)
+          return NextResponse.json({ error: 'too_far', message: 'You are too far from this code', distance: distanceMetres, max: MAX_DISTANCE_METRES }, { status: 403 });
+      }
+
+      existing.total_points += code.points;
+      existing.codes_scanned.push(codeSlug);
+      await existing.save();
+
+      await ScanLog.create({ phone, code_slug: codeSlug, points_awarded: code.points, scanned_at: watNow(), distance_metres: distanceMetres });
+
+      const rank = (await Participant.countDocuments({ total_points: { $gt: existing.total_points } })) + 1;
+      return NextResponse.json({ pointsEarned: code.points, totalPoints: existing.total_points, rank });
     }
 
     if (!codeSlug) {

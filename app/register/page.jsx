@@ -17,7 +17,6 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState('');
   const [success, setSuccess] = useState(null);
-  const [phoneExists, setPhoneExists] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
 
   useEffect(() => { if (localStorage.getItem('ias3_phone')) setAlreadyRegistered(true); }, []);
@@ -38,14 +37,12 @@ export default function Register() {
     if (Object.keys(errs).length > 0) return;
     setLoading(true);
     setServerError('');
-    setPhoneExists(false);
     try {
       const result = await api.register({ ...form, codeSlug: null });
       localStorage.setItem('ias3_phone', form.phone);
-      setSuccess({ name: result.name || form.name.trim() });
+      setSuccess({ name: result.name || form.name.trim(), returning: !!result.alreadyExisted });
     } catch (err) {
-      if (err.error === 'phone_exists') setPhoneExists(true);
-      else setServerError('Something went wrong. Please try again.');
+      setServerError('Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -72,7 +69,12 @@ export default function Register() {
     <Link key="lb" href="/leaderboard" className="btn btn-secondary">View Leaderboard →</Link>,
   ]);
 
-  if (success) return stateCard("You're in.", `Welcome to The Hunt, ${success.name}. Start scanning QR codes across campus to earn points.`, [
+  if (success) return stateCard(
+    success.returning ? 'Welcome back.' : "You're in.",
+    success.returning
+      ? `Good to see you again, ${success.name}. Keep scanning QR codes across campus to earn more points.`
+      : `Welcome to The Hunt, ${success.name}. Start scanning QR codes across campus to earn points.`,
+    [
     <button key="scan" className="btn btn-primary" onClick={() => setShowScanner(true)}>Scan a Code →</button>,
     <Link key="lb" href="/leaderboard" className="btn btn-secondary">View Leaderboard →</Link>,
   ]);
@@ -86,12 +88,6 @@ export default function Register() {
           <p className="text-[14px] text-iroko opacity-80 m-0">Register once and every QR code you scan will be tracked automatically.</p>
         </div>
         <div className="card">
-          {phoneExists ? (
-            <div className="flex flex-col gap-4">
-              <p className="m-0 text-[14px]">This number is already registered.</p>
-              <Link href="/leaderboard" className="btn btn-secondary w-full">View Leaderboard →</Link>
-            </div>
-          ) : (
             <form onSubmit={handleSubmit} noValidate>
               <div className="form-group">
                 <label className="form-label" htmlFor="rn">Full Name</label>
@@ -124,7 +120,6 @@ export default function Register() {
                 {loading ? 'Registering...' : 'Join The Hunt →'}
               </button>
             </form>
-          )}
         </div>
       </div>
       {showScanner && <CameraScanner onClose={() => setShowScanner(false)} />}
