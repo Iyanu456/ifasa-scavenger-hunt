@@ -7,6 +7,7 @@ import { Html5Qrcode } from 'html5-qrcode';
 export default function CameraScanner({ onClose }) {
   const router = useRouter();
   const scannerRef = useRef(null);
+  const isRunningRef = useRef(false);
   const [error, setError] = useState(null);
   const [starting, setStarting] = useState(true);
 
@@ -25,6 +26,7 @@ export default function CameraScanner({ onClose }) {
           () => {}
         );
 
+        isRunningRef.current = true;
         setStarting(false);
       } catch (err) {
         const msg = err?.toString() ?? '';
@@ -42,17 +44,19 @@ export default function CameraScanner({ onClose }) {
     startScanner();
 
     return () => {
-      if (scannerRef.current) {
+      if (scannerRef.current && isRunningRef.current) {
         scannerRef.current.stop().catch(() => {});
-        scannerRef.current = null;
       }
+      scannerRef.current = null;
+      isRunningRef.current = false;
     };
   }, []);
 
   function handleScan(decodedText) {
-    if (scannerRef.current) {
+    if (scannerRef.current && isRunningRef.current) {
       scannerRef.current.stop().catch(() => {});
       scannerRef.current = null;
+      isRunningRef.current = false;
     }
 
     try {
