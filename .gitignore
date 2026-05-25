@@ -1,0 +1,49 @@
+# ── Dependencies ──────────────────────────────────────────────
+node_modules/
+ias3-hunt/node_modules/
+
+# ── Next.js build output ──────────────────────────────────────
+.next/
+ias3-hunt/.next/
+out/
+ias3-hunt/out/
+
+# ── Environment variables (never commit real secrets) ─────────
+.env
+.env.local
+.env.*.local
+ias3-hunt/.env
+ias3-hunt/.env.local
+ias3-hunt/.env.*.local
+
+# ── Keep .env.example (safe template, no real values) ─────────
+!.env.example
+!ias3-hunt/.env.example
+
+# ── OS & editor noise ─────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# ── Debug & logs ─────────────────────────────────────────────
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ── Playwright test artifacts ─────────────────────────────────
+.playwright-mcp/
+playwright-report/
+test-results/
+
+# ── Screenshot dumps (dev only) ───────────────────────────────
+*.png
+!public/**/*.png
+!ias3-hunt/public/**/*.png
+
+# ── Misc ─────────────────────────────────────────────────────
+.vercel
+.turbo
