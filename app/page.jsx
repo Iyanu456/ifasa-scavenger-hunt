@@ -1,8 +1,10 @@
 'use client';
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import Layout from '@/components/Layout';
-import ScanPicker from '@/components/ScanPicker';
+
+const CameraScanner = dynamic(() => import('@/components/CameraScanner'), { ssr: false });
 
 const steps = [
   { num: '01', title: 'Scan', body: "Find a QR code anywhere on campus and scan it with your camera." },
@@ -11,7 +13,7 @@ const steps = [
 ];
 
 export default function Home() {
-  const [pickerOpen, setPickerOpen] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
 
   return (
     <Layout>
@@ -45,7 +47,7 @@ export default function Home() {
           <Link href="/leaderboard" className="btn btn-primary text-base px-8 py-[14px] w-full max-w-[320px]">
             View Leaderboard →
           </Link>
-          <button className="btn btn-secondary text-base px-8 py-[14px] w-full max-w-[320px]" onClick={() => setPickerOpen(true)}>
+          <button className="btn btn-secondary text-base px-8 py-[14px] w-full max-w-[320px]" onClick={() => setShowScanner(true)}>
             Scan a Code →
           </button>
           <p className="text-[13px] text-iroko opacity-60 mt-1 italic font-mono">
@@ -53,7 +55,7 @@ export default function Home() {
           </p>
         </section>
       </div>
-      {pickerOpen && <ScanPicker onClose={() => setPickerOpen(false)} />}
+      {showScanner && <CameraScanner onClose={() => setShowScanner(false)} />}
     </Layout>
   );
 }

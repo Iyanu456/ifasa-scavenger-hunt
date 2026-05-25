@@ -1,9 +1,11 @@
 'use client';
 import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import Layout from '@/components/Layout';
-import ScanPicker from '@/components/ScanPicker';
 import { api } from '@/utils/api';
+
+const CameraScanner = dynamic(() => import('@/components/CameraScanner'), { ssr: false });
 
 const PHONE_REGEX = /^(070|080|081|090)\d{8}$/;
 const LEVELS = ['100L', '200L', '300L', '400L', '500L', '600L', 'Postgraduate'];
@@ -16,7 +18,7 @@ export default function Register() {
   const [serverError, setServerError] = useState('');
   const [success, setSuccess] = useState(null);
   const [phoneExists, setPhoneExists] = useState(false);
-  const [pickerOpen, setPickerOpen] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
 
   useEffect(() => { if (localStorage.getItem('ias3_phone')) setAlreadyRegistered(true); }, []);
 
@@ -61,17 +63,17 @@ export default function Register() {
           <div className="flex flex-col gap-3 mt-2">{actions}</div>
         </div>
       </div>
-      {pickerOpen && <ScanPicker onClose={() => setPickerOpen(false)} />}
+      {showScanner && <CameraScanner onClose={() => setShowScanner(false)} />}
     </Layout>
   );
 
   if (alreadyRegistered) return stateCard("You're already registered.", "Welcome back. Keep scanning QR codes across campus to earn more points.", [
-    <button key="scan" className="btn btn-primary" onClick={() => setPickerOpen(true)}>Scan a Code →</button>,
+    <button key="scan" className="btn btn-primary" onClick={() => setShowScanner(true)}>Scan a Code →</button>,
     <Link key="lb" href="/leaderboard" className="btn btn-secondary">View Leaderboard →</Link>,
   ]);
 
   if (success) return stateCard("You're in.", `Welcome to The Hunt, ${success.name}. Start scanning QR codes across campus to earn points.`, [
-    <button key="scan" className="btn btn-primary" onClick={() => setPickerOpen(true)}>Scan a Code →</button>,
+    <button key="scan" className="btn btn-primary" onClick={() => setShowScanner(true)}>Scan a Code →</button>,
     <Link key="lb" href="/leaderboard" className="btn btn-secondary">View Leaderboard →</Link>,
   ]);
 
@@ -125,7 +127,7 @@ export default function Register() {
           )}
         </div>
       </div>
-      {pickerOpen && <ScanPicker onClose={() => setPickerOpen(false)} />}
+      {showScanner && <CameraScanner onClose={() => setShowScanner(false)} />}
     </Layout>
   );
 }

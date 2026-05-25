@@ -14,7 +14,6 @@ async function request(path, options = {}) {
 
 export const api = {
   getCode: (slug) => request(`/api/codes/${slug}`),
-  listActiveCodes: () => request('/api/codes/list'),
   register: (body) => request('/api/register', { method: 'POST', body: JSON.stringify(body) }),
   scan: (body) => request('/api/scan', { method: 'POST', body: JSON.stringify(body) }),
   leaderboard: () => request('/api/leaderboard'),
