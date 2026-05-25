@@ -1,8 +1,10 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import Layout from '@/components/Layout';
+import LoggedInHome from '@/components/LoggedInHome';
+import { api } from '@/utils/api';
 
 const CameraScanner = dynamic(() => import('@/components/CameraScanner'), { ssr: false });
 
@@ -14,6 +16,48 @@ const steps = [
 
 export default function Home() {
   const [showScanner, setShowScanner] = useState(false);
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function checkLogin() {
+      const phone = localStorage.getItem('ias3_phone');
+      if (!phone) { setLoading(false); return; }
+      try {
+        const data = await api.leaderboard();
+        const participant = data.participants?.find((p) => p.phone === phone);
+        if (participant) {
+          setProfile({ ...participant, phone });
+        } else {
+          localStorage.removeItem('ias3_phone');
+        }
+      } catch {
+        localStorage.removeItem('ias3_phone');
+      } finally {
+        setLoading(false);
+      }
+    }
+    checkLogin();
+  }, []);
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="page-container flex items-center justify-center min-h-[60vh]">
+          <p className="loading-text">Loading...</p>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (profile) {
+    return (
+      <Layout>
+        <LoggedInHome profile={profile} onScan={() => setShowScanner(true)} />
+        {showScanner && <CameraScanner onClose={() => setShowScanner(false)} />}
+      </Layout>
+    );
+  }
 
   return (
     <Layout>

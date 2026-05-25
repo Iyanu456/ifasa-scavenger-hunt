@@ -10,6 +10,7 @@ export async function GET() {
       total: participants.length,
       participants: participants.map((p, i) => ({
         rank: i + 1,
+        phone: p.phone,
         name: p.name,
         department: p.department,
         total_points: p.total_points,

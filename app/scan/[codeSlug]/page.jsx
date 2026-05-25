@@ -69,7 +69,12 @@ export default function ScanPage({ params }) {
 
   function doScan(phone, coords) {
     setStatus('scanning');
-    api.scan({ phone, codeSlug, lat: coords?.lat ?? null, lng: coords?.lng ?? null })
+    api.scan({
+      phone,
+      codeSlug,
+      lat: coords?.lat != null ? Number(coords.lat) : null,
+      lng: coords?.lng != null ? Number(coords.lng) : null,
+    })
       .then((data) => { setResult(data); setStatus('success'); })
       .catch((err) => {
         if (err.error === 'already_scanned') setStatus('already_scanned');
