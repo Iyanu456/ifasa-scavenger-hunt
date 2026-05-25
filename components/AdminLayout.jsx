@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { auth } from '@/utils/auth';
+import { api } from '@/utils/api';
 
 const NAV_LINKS = [
   { label: 'Overview',     href: '/admin' },
@@ -16,6 +17,21 @@ export default function AdminLayout({ children }) {
   const pathname = usePathname();
   const router = useRouter();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [verified, setVerified] = useState(false);
+
+  useEffect(() => {
+    async function checkAuth() {
+      if (!auth.isLoggedIn()) { router.replace('/admin/login'); return; }
+      try {
+        await api.admin.me();
+        setVerified(true);
+      } catch {
+        auth.clear();
+        router.replace('/admin/login');
+      }
+    }
+    checkAuth();
+  }, []);
 
   useEffect(() => { setDrawerOpen(false); }, [pathname]);
 
@@ -23,6 +39,14 @@ export default function AdminLayout({ children }) {
     document.body.style.overflow = drawerOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [drawerOpen]);
+
+  if (!verified) {
+    return (
+      <div className="min-h-screen bg-harmattan flex items-center justify-center">
+        <p className="mono-label">Checking access...</p>
+      </div>
+    );
+  }
 
   function handleSignOut() {
     auth.clear();
