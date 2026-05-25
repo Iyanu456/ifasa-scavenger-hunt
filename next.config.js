@@ -1,5 +1,3 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  turbopack: false,
-};
+const nextConfig = {};
 export default nextConfig;
